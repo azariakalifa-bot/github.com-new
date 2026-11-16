@@ -1,0 +1,22 @@
+name: Gold alerts
+
+on:
+  schedule:
+    - cron: "*/15 * * * 1-5"
+    - cron: "0 6 * * 1-5"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "test, alert ou daily"
+        default: "test"
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lancer le script
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python3 gold_alerts.py "${{ github.event.inputs.mode || (github.event.schedule == '0 6 * * 1-5' && 'daily' || 'alert') }}"
